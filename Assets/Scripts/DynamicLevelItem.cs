@@ -7,10 +7,11 @@ public class DynamicLevelItem : LevelItem
 {
     private Renderer[] _rends;
     [SerializeField] private GameObject _highlightItemGO;
+    public bool Gone { get; private set; }
 
-    public override void Initialize(TileElement attachedTile, Enums.Pairs pair)
+    public override void Initialize(TileElement tileElement)
     {
-        base.Initialize(attachedTile, pair);
+        base.Initialize(tileElement);
 
         _rends = GetComponentsInChildren<Renderer>();
         ColorItem();
@@ -19,14 +20,28 @@ public class DynamicLevelItem : LevelItem
 
     public void SetClickActions()
     {
-        if (ItemType == Enums.ItemTypes.Driver)
+        if (this is Driver)
         {
-            MatchManager.Instance.SetDriver(this);
+            MatchManager.Instance.SetDriver(this as Driver);
         }
-        else if (ItemType == Enums.ItemTypes.Vehicle)
+        else if (this is Vehicle)
         {
-            MatchManager.Instance.SetCar(this);
+            MatchManager.Instance.SetVehicle(this as Vehicle);
         }
+    }
+
+    public void GoOutside()
+    {
+        Gone = true;
+    }
+
+    public void RemoveFromLevel()
+    {
+        foreach (var tile in RegardedTileList)
+        {
+            tile.SetAttachedItem();
+        }
+        GoOutside();
     }
 
     private void ColorItem()
@@ -53,6 +68,16 @@ public class DynamicLevelItem : LevelItem
             case Enums.Pairs.Red:
 
                 color = Color.red;
+
+                break;
+            case Enums.Pairs.Purple:
+
+                color = Color.magenta;
+
+                break;
+            case Enums.Pairs.Orange:
+
+                color = Color.cyan;
 
                 break;
         }
@@ -94,10 +119,19 @@ public class DynamicLevelItem : LevelItem
 
     public async Task MoveItemToOtherTile(TileElement targetTile)
     {
-        await transform.DOMove(targetTile.transform.position, 0.25f).OnComplete(() =>
+        Vector3 targetPos = targetTile.transform.position;
+        RotateItem(targetPos);
+        await transform.DOMove(targetPos, 0.25f).OnComplete(() =>
         {
-            SetAttachedTile(targetTile);
+            GetAttachedTiles(targetTile);
         }
         ).AsyncWaitForCompletion();
+    }
+
+    private void RotateItem(Vector3 targetPos)
+    {
+        Vector3 direction = targetPos - transform.position;
+        float angle = Mathf.Atan(direction.x / direction.z);
+        transform.eulerAngles = Mathf.Rad2Deg * angle * Vector3.up;
     }
 }

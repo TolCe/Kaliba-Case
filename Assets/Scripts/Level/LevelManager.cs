@@ -3,17 +3,17 @@ using UnityEngine.SceneManagement;
 
 public class LevelManager : Singleton<LevelManager>
 {
-    [Header("Level Data Container")]
-    public LevelContainer levelContainer;
+    public LevelContainer LevelContainer;
+    public int CurrentLevelIndex { get; private set; }
 
-    private void Start()
+    public GridContainer GetCurrentLevelData()
     {
-        SetLevelStuff();
+        return LevelContainer.Levels[CurrentLevelIndex];
     }
 
-    private void SetLevelStuff()
+    public void CompleteLevel()
     {
-        LevelItemsManager.Instance.Initialize();
-        GridManager.Instance.CreateGrid();
+        CurrentLevelIndex++;
+        CurrentLevelIndex = CurrentLevelIndex % LevelContainer.Levels.Count;
     }
 }

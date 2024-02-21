@@ -412,7 +412,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4097869765668981733}
-  - component: {fileID: 5193799580486096370}
+  - component: {fileID: 4417017942496597722}
   m_Layer: 0
   m_Name: Driver
   m_TagString: Untagged
@@ -437,7 +437,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5193799580486096370
+--- !u!114 &4417017942496597722
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -446,11 +446,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 4097869765668981734}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cec6ae6771fc6f845a074db0dacfc06d, type: 3}
+  m_Script: {fileID: 11500000, guid: 71bf68be2364ad340985a4b59a08402b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ItemType: 2
   _highlightItemGO: {fileID: 1960956744695637411}
+  _driverAnimation: {fileID: 8112816230083222868}
 --- !u!1 &4480638288063667696
 GameObject:
   m_ObjectHideFlags: 0
@@ -918,6 +919,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7822210999343042192}
+  - component: {fileID: 4803055862031323273}
+  - component: {fileID: 8112816230083222868}
   m_Layer: 0
   m_Name: stickman-tpose
   m_TagString: Untagged
@@ -942,6 +945,43 @@ Transform:
   m_Father: {fileID: 4097869765668981733}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &4803055862031323273
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7477598094692881450}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: 176949f6f2f96a34fbbba0528cc5cb60, type: 3}
+  m_Controller: {fileID: 9100000, guid: 3932be977f68d0b42abab02e435590b4, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &8112816230083222868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7477598094692881450}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d89b311bca55bd848bd67504574a7ff2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _animator: {fileID: 4803055862031323273}
+  _selectionParameterName: Select
+  _runParameterName: Run
+  _vehicleEnterParameterName: EnterVehicle
 --- !u!1 &7573797226323569469
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,53 +1,35 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class TileElement : MonoBehaviour
 {
-    private LevelItem _attachedItem;
+    public LevelItem AttachedItem { get; private set; }
 
-    private TileVO _tileVO;
+    public TileVO TileVO { get; private set; }
     [SerializeField] private Renderer _rend;
     public Vector2 Pos { get; private set; }
     public float TileSize;
 
-    private List<TileElement> _connectedTileViaItem = new List<TileElement>();
-
     public void Initialize(int row, int column, TileVO tileVO)
     {
-        Pos = new Vector2(row, column);
+        Pos = new Vector2(column, row);
+        TileVO = tileVO;
+        gameObject.SetActive(true);
+    }
 
-        _tileVO = tileVO;
-        LevelItem levelItem = LevelItemsManager.Instance.GetFromPool(_tileVO.ItemType);
-        levelItem?.Initialize(this, _tileVO.Pair);
+    public void InitializeTileAttachedItem()
+    {
+        if (TileVO.LevelItemData != null)
+        {
+            LevelItem levelItem = LevelItemsManager.Instance.GetFromPool(TileVO.LevelItemData.ItemType);
+            levelItem?.Initialize(this);
+        }
     }
 
     public void SetAttachedItem(LevelItem levelItem = null)
     {
-        _attachedItem = levelItem;
-        foreach (var tile in _connectedTileViaItem)
-        {
-            tile.SetAttachedItem(levelItem);
-        }
-    }
-
-    public void CheckVehicleCreation()
-    {
-        if (_tileVO.ItemType == Enums.ItemTypes.Vehicle)
-        {
-            TileElement tile = null;
-            for (int i = 1; i < _tileVO.VehicleSize; i++)
-            {
-                tile = GridManager.Instance.GetTileAtPosition(Pos + new Vector2(Mathf.Cos(Mathf.Deg2Rad * 90f * (3 - _tileVO.DirectionCoefficient)), Mathf.Sin(Mathf.Deg2Rad * 90f * (3 - _tileVO.DirectionCoefficient))));
-                _connectedTileViaItem.Add(tile);
-            }
-
-            _attachedItem.transform.position = (transform.position + tile.transform.position) * 0.5f;
-            SetAttachedItem(_attachedItem);
-        }
+        AttachedItem = levelItem;
     }
 
     private void OnMouseDown()
@@ -57,32 +39,28 @@ public class TileElement : MonoBehaviour
 
     public void SelectTile()
     {
-        if (_attachedItem == null)
+        if (LevelItemsManager.Instance.AnItemMoving)
         {
-            List<TileElement> tileElementList = GridManager.Instance.FindPath(this);
-            MatchManager.Instance.MoveDriver(tileElementList);
+            return;
+        }
+
+        if (AttachedItem == null)
+        {
+            MatchManager.Instance.MoveToEmptyTile(this);
         }
         else
         {
-            if (_attachedItem is DynamicLevelItem)
+            if (AttachedItem is DynamicLevelItem)
             {
-                DynamicLevelItem attachedItem = _attachedItem as DynamicLevelItem;
+                DynamicLevelItem attachedItem = AttachedItem as DynamicLevelItem;
                 attachedItem.SetClickActions();
-                GridManager.Instance.SelectTile(this);
             }
         }
     }
 
-    public void DeselectTile()
+    public void ResetTile()
     {
-        if (_attachedItem != null)
-        {
-            if (_attachedItem is DynamicLevelItem)
-            {
-                DynamicLevelItem attachedItem = _attachedItem as DynamicLevelItem;
-                attachedItem.RemoveHighlight();
-            }
-        }
+        SetAttachedItem();
     }
 
     #region Pathfinding
@@ -91,16 +69,23 @@ public class TileElement : MonoBehaviour
     public float H { get; private set; }
     public float F => G + H;
 
-    public List<TileElement> Neighbours;
-    private List<Vector2> _neighbourDirectionList = new List<Vector2>() { new Vector2(0, 1), new Vector2(-1, 0), new Vector2(0, -1), new Vector2(1, 0) };
+    public List<TileElement> VerticalNeighbours;
+    public List<TileElement> HorizontalNeighbours;
+    private List<Vector2> _verticalNeighbourDirList = new List<Vector2>() { new Vector2(-1, 0), new Vector2(1, 0) };
+    private List<Vector2> _horizontalNeighbourDirList = new List<Vector2>() { new Vector2(0, 1), new Vector2(0, -1) };
 
     public void SetNeighbourTiles()
     {
-        Neighbours = new List<TileElement>();
+        VerticalNeighbours = new List<TileElement>();
+        HorizontalNeighbours = new List<TileElement>();
 
-        foreach (var tile in _neighbourDirectionList.Select(dir => GridManager.Instance.GetTileAtPosition(Pos + dir)).Where(tile => tile != null))
+        foreach (var tile in _verticalNeighbourDirList.Select(dir => GridManager.Instance.GetTileAtPosition(Pos + dir)).Where(tile => tile != null))
         {
-            Neighbours.Add(tile);
+            VerticalNeighbours.Add(tile);
+        }
+        foreach (var tile in _horizontalNeighbourDirList.Select(dir => GridManager.Instance.GetTileAtPosition(Pos + dir)).Where(tile => tile != null))
+        {
+            HorizontalNeighbours.Add(tile);
         }
     }
 
@@ -131,9 +116,9 @@ public class TileElement : MonoBehaviour
         return lowest * 14 + horizontalMovesRequired * 10;
     }
 
-    public bool IsWalkable()
+    public bool IsWalkable(LevelItem item)
     {
-        return _attachedItem == null;
+        return AttachedItem == item || AttachedItem == null;
     }
     #endregion
 }

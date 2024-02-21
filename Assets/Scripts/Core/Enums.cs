@@ -14,5 +14,7 @@ public static class Enums
         Green = 1,
         Yellow = 2,
         Red = 3,
+        Purple = 4,
+        Orange = 5,
     }
 }

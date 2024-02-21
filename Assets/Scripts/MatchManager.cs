@@ -1,70 +1,105 @@
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class MatchManager : Singleton<MatchManager>
 {
-    private DynamicLevelItem _selectedDriver;
-    private DynamicLevelItem _correctCar;
+    private Driver _selectedDriver;
+    private Vehicle _selectedVehicle;
 
-    public void SetDriver(DynamicLevelItem driver = null)
+    public void SetDriver(Driver driver = null)
     {
         if (_selectedDriver != null)
         {
-            _selectedDriver.RemoveHighlight();
+            _selectedDriver.DeselectDriver();
         }
 
         _selectedDriver = driver;
 
+        if (LevelItemsManager.Instance.AnItemMoving)
+        {
+            return;
+        }
+
         if (_selectedDriver != null)
         {
-            _selectedDriver.HighlightItem();
+            _selectedDriver.SelectDriver();
         }
     }
 
-    public void SetCar(DynamicLevelItem car)
+    public void SetVehicle(Vehicle vehicle)
     {
+        if (LevelItemsManager.Instance.AnItemMoving)
+        {
+            return;
+        }
+
         if (_selectedDriver == null)
         {
             return;
         }
 
-        if (car.Pair == _selectedDriver.Pair)
+        if (vehicle.Pair == _selectedDriver.Pair)
         {
-            car.AttachedTile.SetAttachedItem();
-            List<TileElement> tileElementList = GridManager.Instance.FindPath(car.AttachedTile);
-            MoveDriver(tileElementList);
-            _correctCar = car;
+            List<List<TileElement>> pathList = new List<List<TileElement>>();
+            foreach (TileElement tile in vehicle.DoorTileList)
+            {
+                List<TileElement> tileList = GridManager.Instance.FindPath(_selectedDriver.RegardedTileList[0], tile);
+                if (tileList != null)
+                {
+                    pathList.Add(tileList);
+                }
+            }
+            if (pathList.Count > 0)
+            {
+                _selectedVehicle = vehicle;
+                List<TileElement> tileElementList = pathList.OrderByDescending(list => list.Count()).Last();
+                MoveDriver(tileElementList, _selectedDriver, _selectedVehicle);
+            }
+            else
+            {
+                Debug.Log("Path blocked!");
+            }
         }
         else
         {
             Debug.Log("Driver and car didn't match!");
         }
 
-        SetDriver();
+        ResetItems();
     }
 
-    public async void MoveDriver(List<TileElement> targetTileList)
+    public void MoveToEmptyTile(TileElement emptyTile)
     {
-        DynamicLevelItem cacheDriver = _selectedDriver;
-        SetDriver();
-
-        if (cacheDriver == null || targetTileList == null)
+        if (_selectedDriver == null)
         {
-            if (targetTileList == null)
-            {
-                Debug.Log("Path blocked!");
-            }
-
             return;
         }
 
-        await cacheDriver.MoveItem(targetTileList);
+        List<TileElement> tileElementList = GridManager.Instance.FindPath(_selectedDriver.RegardedTileList[0], emptyTile);
+        MoveDriver(tileElementList, _selectedDriver);
+    }
 
-        if (_correctCar != null)
+    public async void MoveDriver(List<TileElement> targetTileList, Driver driver, Vehicle vehicle = null)
+    {
+        LevelItemsManager.Instance.SetMovingState(true);
+        ResetItems();
+
+        await driver.Move(targetTileList);
+        if (vehicle != null)
         {
-            LevelItemsManager.Instance.PutIntoPool(cacheDriver);
-            LevelItemsManager.Instance.PutIntoPool(_correctCar);
-            _correctCar = null;
+            vehicle.PutDriverInCar(driver);
         }
+        else
+        {
+            LevelItemsManager.Instance.SetMovingState(false);
+        }
+    }
+
+    private void ResetItems()
+    {
+        SetDriver();
+        _selectedVehicle = null;
     }
 }

@@ -2,56 +2,76 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class GridManager : Singleton<GridManager>
 {
-    [SerializeField] private GridContainer _vo;
+    private List<TileElement> _tileList;
+    public int TileHeight { get; private set; }
+    public int TileWidth { get; private set; }
+
     [SerializeField] private TileElement _tilePrefab;
+    private ObjectPool<TileElement> _tilePool;
     [SerializeField] private Transform _tileContainer;
 
-    private List<TileElement> _tileList;
-    private int _tileHeight, _tileWidth;
+    protected override void Awake()
+    {
+        base.Awake();
 
-    private TileElement _selectedTile;
+        _tilePool = new ObjectPool<TileElement>(_tilePrefab, 20, _tileContainer);
+    }
+    private void OnEnable()
+    {
+        BusSystem.Level.OnLevelUnload += OnLevelUnload;
+    }
+    private void OnDisable()
+    {
+        BusSystem.Level.OnLevelUnload -= OnLevelUnload;
+    }
 
-    public void CreateGrid()
+    private void OnLevelUnload()
+    {
+        ResetGrid();
+    }
+
+    public void CreateGrid(GridContainer grid)
     {
         _tileList = new List<TileElement>();
 
-        _tileHeight = _vo[0].GridHeight;
-        _tileWidth = _vo[0].GridWidth;
+        TileHeight = grid[0].GridHeight;
+        TileWidth = grid[0].GridWidth;
 
-        for (int i = 0; i < _vo[0].GridWidth; i++)
+        for (int i = 0; i < grid[0].GridWidth; i++)
         {
-            for (int j = 0; j < _vo[0].GridHeight; j++)
+            for (int j = 0; j < grid[0].GridHeight; j++)
             {
-                TileElement tileElement = Instantiate(_tilePrefab, _tileContainer).GetComponent<TileElement>();
-                tileElement.transform.position = tileElement.TileSize * new Vector3((i * 2) - _vo[0].GridWidth + 1, tileElement.transform.position.y, ((_vo[0].GridHeight - j - 1) * 2) - _vo[0].GridHeight + 1);
+                TileElement tileElement = _tilePool.Get();
+                tileElement.transform.position = tileElement.TileSize * new Vector3((i * 2) - grid[0].GridWidth + 1, tileElement.transform.position.y, ((grid[0].GridHeight - j - 1) * 2) - grid[0].GridHeight + 1);
 
-                TileVO selectedVO = _vo[0].Grid[i * _vo[0].GridHeight + j];
+                TileVO selectedVO = grid[0].Grid[i * grid[0].GridHeight + j];
                 tileElement.Initialize(j, i, selectedVO);
 
                 _tileList.Add(tileElement);
             }
         }
 
-        Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, _vo[0].GridWidth * 4 + 3f, Camera.main.transform.position.z);
+        Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, grid[0].GridWidth * 4 + 3f, Camera.main.transform.position.z);
 
-        CameraController.Instance.SetCamera(_vo[0].GridHeight > 5);
+        CameraController.Instance.SetCamera(grid[0].GridHeight > 5);
 
         foreach (var tile in _tileList)
         {
-            tile.CheckVehicleCreation();
             tile.SetNeighbourTiles();
+            tile.InitializeTileAttachedItem();
         }
     }
 
     public TileElement GetTileAtPosition(Vector2 pos)
     {
-        int row = (int)pos.x;
-        int column = (int)pos.y;
+        int row = (int)pos.y;
+        int column = (int)pos.x;
 
-        if (row >= 0 && column >= 0 && row < _tileHeight && column < _tileWidth)
+        if (row >= 0 && column >= 0 && row < TileHeight && column < TileWidth)
         {
             TileElement tile = _tileList.FirstOrDefault(x => x.Pos == pos);
             return tile;
@@ -60,14 +80,14 @@ public class GridManager : Singleton<GridManager>
         return null;
     }
 
-    public void SelectTile(TileElement tile)
+    public List<TileElement> FindPath(TileElement startTile, TileElement targetTile)
     {
-        _selectedTile = tile;
-    }
+        if (startTile == null)
+        {
+            return null;
+        }
 
-    public List<TileElement> FindPath(TileElement targetTile)
-    {
-        var toSearch = new List<TileElement>() { _selectedTile };
+        var toSearch = new List<TileElement>() { startTile };
         var processed = new List<TileElement>();
 
         while (toSearch.Any())
@@ -84,7 +104,7 @@ public class GridManager : Singleton<GridManager>
                 var currentPathTile = targetTile;
                 var path = new List<TileElement>();
                 var count = 100;
-                while (currentPathTile != _selectedTile)
+                while (currentPathTile != startTile)
                 {
                     path.Add(currentPathTile);
                     currentPathTile = currentPathTile.Connection;
@@ -95,7 +115,17 @@ public class GridManager : Singleton<GridManager>
                 return path;
             }
 
-            foreach (var neighbour in current.Neighbours.Where(t => t.IsWalkable() && !processed.Contains(t)))
+            List<TileElement> neighbourTiles = new List<TileElement>();
+            foreach (TileElement tile in current.VerticalNeighbours)
+            {
+                neighbourTiles.Add(tile);
+            }
+            foreach (TileElement tile in current.HorizontalNeighbours)
+            {
+                neighbourTiles.Add(tile);
+            }
+
+            foreach (var neighbour in neighbourTiles.Where(t => t.IsWalkable(startTile.AttachedItem) && !processed.Contains(t)))
             {
                 var inSearch = toSearch.Contains(neighbour);
 
@@ -108,12 +138,26 @@ public class GridManager : Singleton<GridManager>
 
                     if (!inSearch)
                     {
-                        neighbour.SetH(neighbour.GetDistance(targetTile));
-                        toSearch.Add(neighbour);
+                        if (targetTile != null)
+                        {
+                            neighbour.SetH(neighbour.GetDistance(targetTile));
+                            toSearch.Add(neighbour);
+                        }
                     }
                 }
             }
         }
+
         return null;
+    }
+
+    public void ResetGrid()
+    {
+        foreach (TileElement tile in _tileList)
+        {
+            tile.ResetTile();
+        }
+        _tileList = new List<TileElement>();
+        _tilePool.ReturnAll();
     }
 }

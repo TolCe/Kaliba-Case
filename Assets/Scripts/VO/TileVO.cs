@@ -4,8 +4,7 @@ using UnityEngine;
 [Serializable]
 public class TileVO
 {
-    public Enums.ItemTypes ItemType = Enums.ItemTypes.None;
-    public Enums.Pairs Pair = Enums.Pairs.Blue;
-    public int VehicleSize = 2;
-    public int DirectionCoefficient = 0;
+    public LevelItemDataSO LevelItemData = null;
+    public Enums.Pairs Pair;
+    public Vector3 FacedDirection = Vector3.zero;
 }

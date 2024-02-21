@@ -25,54 +25,55 @@ public class GridVO
 
     private TileVO DrawElement(Rect rect, TileVO tile)
     {
-        switch (tile.ItemType)
+        if (tile.LevelItemData == null)
         {
-            case Enums.ItemTypes.None:
-                EditorGUI.DrawRect(rect.Padding(1), Color.white);
-                break;
-            case Enums.ItemTypes.Obstacle:
-                EditorGUI.DrawRect(rect.Padding(1), Color.red);
-                break;
-            case Enums.ItemTypes.Driver:
-                EditorGUI.DrawRect(rect.Padding(1), Color.yellow);
-                break;
-            case Enums.ItemTypes.Vehicle:
-                EditorGUI.DrawRect(rect.Padding(1), Color.magenta);
-                break;
-            default:
-                break;
+            EditorGUI.DrawRect(rect.Padding(1), Color.white);
+        }
+        else
+        {
+            switch (tile.LevelItemData.ItemType)
+            {
+                case Enums.ItemTypes.None:
+                    EditorGUI.DrawRect(rect.Padding(1), Color.white);
+                    break;
+                case Enums.ItemTypes.Obstacle:
+                    EditorGUI.DrawRect(rect.Padding(1), Color.red);
+                    break;
+                case Enums.ItemTypes.Driver:
+                    EditorGUI.DrawRect(rect.Padding(1), Color.yellow);
+                    break;
+                case Enums.ItemTypes.Vehicle:
+                    EditorGUI.DrawRect(rect.Padding(1), Color.magenta);
+                    break;
+                default:
+                    break;
+            }
         }
 
         if (Event.current.type == EventType.MouseDown && rect.Contains(Event.current.mousePosition))
         {
-            if (Event.current.button == 0)
-            {
-                tile.ItemType = AttachedItemType;
-            }
-            else if (Event.current.button == 1)
-            {
-                tile.ItemType = Enums.ItemTypes.None;
-            }
-
             Serialize();
             _insertationTileData = tile;
             GUI.changed = true;
             Event.current.Use();
         }
 
-        if (tile.ItemType is Enums.ItemTypes.Driver || tile.ItemType is Enums.ItemTypes.Vehicle)
+        if (tile.LevelItemData != null)
         {
-            var labelStyle = EditorStyles.label;
-            labelStyle.alignment = TextAnchor.MiddleCenter;
-            labelStyle.fontSize = 16;
-            var newRect = rect.SetSize(rect.size * 0.4f);
-            newRect.center = rect.center;
-            EditorGUI.DrawRect(newRect, Color.black);
-            EditorGUI.LabelField(rect, $"{tile.Pair}");
-
-            if (tile.ItemType is Enums.ItemTypes.Vehicle)
+            if (tile.LevelItemData.ItemType is Enums.ItemTypes.Driver || tile.LevelItemData.ItemType is Enums.ItemTypes.Vehicle)
             {
+                var labelStyle = EditorStyles.label;
+                labelStyle.alignment = TextAnchor.MiddleCenter;
+                labelStyle.fontSize = 16;
+                var newRect = rect.SetSize(rect.size * 0.4f);
+                newRect.center = rect.center;
+                EditorGUI.DrawRect(newRect, Color.black);
+                EditorGUI.LabelField(rect, $"{tile.Pair}");
 
+                if (tile.LevelItemData.ItemType is Enums.ItemTypes.Vehicle)
+                {
+
+                }
             }
         }
 
@@ -88,7 +89,8 @@ public class GridVO
         {
             Grid.Add(new TileVO
             {
-                ItemType = Enums.ItemTypes.None,
+                LevelItemData = null,
+                FacedDirection = Vector3.zero,
             });
         }
 

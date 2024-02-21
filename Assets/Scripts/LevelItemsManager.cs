@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class LevelItemsManager : Singleton<LevelItemsManager>
@@ -10,6 +12,24 @@ public class LevelItemsManager : Singleton<LevelItemsManager>
 
     [SerializeField] private LevelItem _obstaclePrefab;
     private ObjectPool<LevelItem> _obstaclePool;
+
+    private List<LevelItem> _vehiclesInLevelList = new List<LevelItem>();
+
+    public bool AnItemMoving { get; private set; }
+
+    private void OnEnable()
+    {
+        BusSystem.Level.OnLevelUnload += OnLevelUnload;
+    }
+    private void OnDisable()
+    {
+        BusSystem.Level.OnLevelUnload -= OnLevelUnload;
+    }
+
+    private void OnLevelUnload()
+    {
+        ResetAllItems();
+    }
 
     public void Initialize()
     {
@@ -29,7 +49,9 @@ public class LevelItemsManager : Singleton<LevelItemsManager>
                 return _driverPool.Get();
 
             case Enums.ItemTypes.Vehicle:
-                return _vehiclePool.Get();
+                LevelItem vehicle = _vehiclePool.Get();
+                _vehiclesInLevelList.Add(vehicle);
+                return vehicle;
 
             default:
                 return null;
@@ -38,7 +60,7 @@ public class LevelItemsManager : Singleton<LevelItemsManager>
 
     public void PutIntoPool(LevelItem item)
     {
-        switch (item.ItemType)
+        switch (item.LevelItemData.ItemType)
         {
             case Enums.ItemTypes.Obstacle:
                 _obstaclePool.Return(item);
@@ -49,8 +71,43 @@ public class LevelItemsManager : Singleton<LevelItemsManager>
                 break;
 
             case Enums.ItemTypes.Vehicle:
+                _vehiclesInLevelList.Remove(item);
                 _vehiclePool.Return(item);
                 break;
         }
+
+        item.transform.SetParent(transform);
+    }
+
+    public void CheckIfLevelCompleted()
+    {
+        bool allClear = true;
+        foreach (Vehicle vehicle in _vehiclesInLevelList)
+        {
+            if (!vehicle.Gone)
+            {
+                allClear = false;
+                break;
+            }
+        }
+
+        if (allClear)
+        {
+            BusSystem.Level.CallLevelSuccess();
+        }
+    }
+
+    private void ResetAllItems()
+    {
+        _obstaclePool.ReturnAll();
+        _driverPool.ReturnAll();
+        _vehiclePool.ReturnAll();
+
+        _vehiclesInLevelList = new List<LevelItem>();
+    }
+
+    public void SetMovingState(bool state)
+    {
+        AnItemMoving = state;
     }
 }

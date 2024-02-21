@@ -1,0 +1,113 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a6458c0a7c084140ab7d37400f51882, type: 3}
+  m_Name: Level_2
+  m_EditorClassIdentifier: 
+  Grids:
+  - AttachedItemType: 1
+    GridWidth: 5
+    GridHeight: 6
+    Grid:
+    - LevelItemData: {fileID: 0}
+      Pair: 0
+      FacedDirection: {x: 0, y: 0, z: 0}
+    - LevelItemData: {fileID: 0}
+      Pair: 0
+      FacedDirection: {x: 0, y: 0, z: 0}
+    - LevelItemData: {fileID: 0}
+      Pair: 0
+      FacedDirection: {x: 0, y: 0, z: 0}
+    - LevelItemData: {fileID: 11400000, guid: b3b31f00f02334841a17aa0ffa78e103, type: 2}
+      Pair: 3
+      FacedDirection: {x: 0, y: 0, z: 0}
+    - LevelItemData: {fileID: 0}
+      Pair: 0
+      FacedDirection: {x: 0, y: 0, z: 0}
+    - LevelItemData: {fileID: 0}
+      Pair: 0
+      FacedDirection: {x: 0, y: 0, z: 0}
+    - LevelItemData: {fileID: 11400000, guid: 2840aabe26c8c22419b0dcfd71da0b07, type: 2}
+      Pair: 3
+      FacedDirection: {x: 1, y: 0, z: 0}
+    - LevelItemData: {fileID: 0}
+      Pair: 0
+      FacedDirection: {x: 0, y: 0, z: 0}
+    - LevelItemData: {fileID: 11400000, guid: 2840aabe26c8c22419b0dcfd71da0b07, type: 2}
+      Pair: 2
+      FacedDirection: {x: 1, y: 0, z: 0}
+    - LevelItemData: {fileID: 0}
+      Pair: 0
+      FacedDirection: {x: 0, y: 0, z: 0}
+    - LevelItemData: {fileID: 0}
+      Pair: 0
+      FacedDirection: {x: 0, y: 0, z: 0}
+    - LevelItemData: {fileID: 0}
+      Pair: 0
+      FacedDirection: {x: 0, y: 0, z: 0}
+    - LevelItemData: {fileID: 0}
+      Pair: 0
+      FacedDirection: {x: 0, y: 0, z: 0}
+    - LevelItemData: {fileID: 11400000, guid: b3b31f00f02334841a17aa0ffa78e103, type: 2}
+      Pair: 5
+      FacedDirection: {x: 0, y: 0, z: 0}
+    - LevelItemData: {fileID: 0}
+      Pair: 0
+      FacedDirection: {x: 0, y: 0, z: 0}
+    - LevelItemData: {fileID: 0}
+      Pair: 0
+      FacedDirection: {x: 0, y: 0, z: 0}
+    - LevelItemData: {fileID: 0}
+      Pair: 0
+      FacedDirection: {x: 0, y: 0, z: 0}
+    - LevelItemData: {fileID: 11400000, guid: c0d0f2b7ae6de3c47926d08cb00ce944, type: 2}
+      Pair: 5
+      FacedDirection: {x: 0, y: 0, z: -1}
+    - LevelItemData: {fileID: 0}
+      Pair: 0
+      FacedDirection: {x: 0, y: 0, z: 0}
+    - LevelItemData: {fileID: 11400000, guid: 2840aabe26c8c22419b0dcfd71da0b07, type: 2}
+      Pair: 4
+      FacedDirection: {x: 0, y: 0, z: -1}
+    - LevelItemData: {fileID: 0}
+      Pair: 0
+      FacedDirection: {x: 0, y: 0, z: 0}
+    - LevelItemData: {fileID: 0}
+      Pair: 0
+      FacedDirection: {x: 0, y: 0, z: 0}
+    - LevelItemData: {fileID: 11400000, guid: 60c4fbe218c0f464f9f45a41e801145f, type: 2}
+      Pair: 0
+      FacedDirection: {x: 0, y: 0, z: 1}
+    - LevelItemData: {fileID: 0}
+      Pair: 0
+      FacedDirection: {x: 0, y: 0, z: 0}
+    - LevelItemData: {fileID: 0}
+      Pair: 0
+      FacedDirection: {x: 0, y: 0, z: 0}
+    - LevelItemData: {fileID: 11400000, guid: b3b31f00f02334841a17aa0ffa78e103, type: 2}
+      Pair: 2
+      FacedDirection: {x: 0, y: 0, z: 0}
+    - LevelItemData: {fileID: 0}
+      Pair: 0
+      FacedDirection: {x: 0, y: 0, z: 0}
+    - LevelItemData: {fileID: 11400000, guid: b3b31f00f02334841a17aa0ffa78e103, type: 2}
+      Pair: 4
+      FacedDirection: {x: 0, y: 0, z: 0}
+    - LevelItemData: {fileID: 0}
+      Pair: 0
+      FacedDirection: {x: 0, y: 0, z: 0}
+    - LevelItemData: {fileID: 0}
+      Pair: 0
+      FacedDirection: {x: 0, y: 0, z: 0}
+    _insertationTileData:
+      LevelItemData: {fileID: 11400000, guid: 60c4fbe218c0f464f9f45a41e801145f, type: 2}
+      Pair: 0
+      FacedDirection: {x: 0, y: 0, z: 1}
